@@ -2,3 +2,8 @@
 awscliv2.zip
 aws/
 
+# Terraform Business 
+infra/terraform.tfvars
+infra/terraform.tfstate
+infra/.terraform*
+
