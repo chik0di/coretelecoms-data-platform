@@ -7,3 +7,8 @@ infra/terraform.tfvars
 infra/terraform.tfstate
 infra/.terraform*
 
+# Virtual Environment 
+venv/**/*
+
+# Python Bytecode
+src/**/__pycache__/
