@@ -1,3 +1,5 @@
+playground.ipynb
+
 # AWS Business
 awscliv2.zip
 aws/
@@ -12,3 +14,8 @@ venv/**/*
 
 # Python Bytecode
 src/**/__pycache__/
+
+# Credentials
+credentials/*.json
+
+
