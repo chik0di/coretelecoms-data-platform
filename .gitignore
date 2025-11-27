@@ -18,4 +18,9 @@ src/**/__pycache__/
 # Credentials
 credentials/*.json
 
-
+# Airflow Business
+airflow/.env
+airflow/logs
+airflow/config
+airflow/dags/__pycache__/
+airflow/plugins
