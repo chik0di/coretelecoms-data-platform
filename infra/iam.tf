@@ -9,11 +9,11 @@ resource "aws_iam_role" "snowflake_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          "AWS" : "arn:aws:iam::714551764970:user/3sx71000-s"
+          "AWS" : var.snowflake_iam_user_arn
         }
         "Condition": {
           "StringEquals": {
-            "sts:ExternalId": "RU04201_SFCRole=4_+3jpzChFveqGCVBsJe8fCTL9ii4="
+            "sts:ExternalId": var.snowflake_external_id
         }
       }
       },
@@ -43,8 +43,8 @@ resource "aws_iam_role_policy" "snowflake_inline_policy" {
         ]
           Effect   = "Allow"
           Resource = [
-            "arn:aws:s3:::core-telecoms-dev-bronze-layer",
-            "arn:aws:s3:::core-telecoms-dev-bronze-layer/*"
+            "${var.bucket_resource_arn}",
+            "${var.bucket_objects_arn}"
           ]
         },
       ]
