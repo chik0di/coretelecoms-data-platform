@@ -6,7 +6,7 @@ aws/
 
 # Terraform Business 
 infra/terraform.tfvars
-infra/terraform.tfstate
+infra/terraform.tfstate*
 infra/.terraform*
 
 # Virtual Environment 
@@ -24,3 +24,11 @@ airflow/logs
 airflow/config
 airflow/dags/__pycache__/
 airflow/plugins
+
+# dbt Business
+dbt/logs
+dbt/core_telecom_dbt/target
+dbt/core_telecom_dbt/dbt_packages
+dbt/core_telecom_dbt/logs
+dbt/core_telecom_dbt/.gitignore
+dbt/core_telecom_dbt/**/*.gitkeep
