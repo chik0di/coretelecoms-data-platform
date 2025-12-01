@@ -23,12 +23,7 @@ variable "snowflake_external_id" {
   type        = string
 }
 
-variable "bucket_resource_arn" {
+variable "aws_s3_bucket_arn" {
   description = "ARN of S3 bucket"
-  type        = string
-}
-
-variable "bucket_objects_arn" {
-  description = "ARN of S3 bucket with a forward slash and an asterisk to include all of its objects"
   type        = string
 }
