@@ -43,8 +43,8 @@ resource "aws_iam_role_policy" "snowflake_inline_policy" {
         ]
           Effect   = "Allow"
           Resource = [
-            "${var.bucket_resource_arn}",
-            "${var.bucket_objects_arn}"
+            "${var.aws_s3_bucket_arn}",
+            "${var.aws_s3_bucket_arn}/*"
           ]
         },
       ]
