@@ -5,15 +5,7 @@ from src.utils.config import (
     S3_TARGET_BUCKET
 )
 from src.utils.s3_utils import upload_df_as_parquet_to_s3
-from src.utils.postgres_utils import list_webform_tables, generate_s3_partitioned_key # s3_partition_exists
-from src.utils.postgres_utils import (
-    host,
-    database,
-    user,
-    port,
-    password,
-    schema
-)
+from src.utils.postgres_utils import list_webform_tables, generate_s3_partitioned_key, get_postgres_engine, get_db_credentials
 from src.utils.pre_bronze import normalize_column_name_and_type, add_ingest_metadata
 
 
@@ -21,11 +13,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def extract_and_upload_forms(write_back_to_s3: bool = False):
-
-    engine = create_engine(
-    f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}"
-    )
+    engine = get_postgres_engine()
     tables = list_webform_tables()
+    schema = get_db_credentials(return_only="schema")
+    database = get_db_credentials(return_only="database")
 
     for table in tables:
 
@@ -38,7 +29,7 @@ def extract_and_upload_forms(write_back_to_s3: bool = False):
         #     continue
 
         logger.info("Extracting new table: %s", table)
-
+        
         query = text(f'SELECT * FROM {schema}.{table}')
         with engine.connect() as conn:
             logger.info("Starting website complaint form extraction: %s", table)
