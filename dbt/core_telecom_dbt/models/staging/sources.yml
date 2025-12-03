@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: staging
+    tables:
+      - name: agent
+        description: "Staging table for agent data"
+
+      - name: call_log
+        description: "Staging table for call log data"
+
+      - name: customer
+        description: "Staging table for customer data"
+
+      - name: social_media
+        description: "Staging table for social media data"
+
+      - name: webform
+        description: "Staging table for web complaints data"
