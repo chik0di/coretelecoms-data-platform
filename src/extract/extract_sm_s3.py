@@ -26,12 +26,12 @@ def run(s3_key: str, write_back_to_s3: bool = False):
     df = add_ingest_metadata(df, source=s3_key)
     
     if write_back_to_s3:
+        logger.info("Starting upload of %d rows...", len(df))
         upload_df_as_parquet_to_s3(df, s3_target_key)
         logger.info("Uploaded parquet to s3://%s/%s", S3_TARGET_BUCKET, s3_target_key)
 
 
 def run_folder(prefix: str):
-    prefix = prefix.rstrip("/") + "/"
     keys = list_objects(prefix)
 
     if not keys:
@@ -42,6 +42,3 @@ def run_folder(prefix: str):
         if key.lower().endswith(".json"):
             logger.info("Processing JSON: %s", key)
             run(key, write_back_to_s3=True)
-
-if __name__ == "__main__":
-    run_folder("social_medias/")

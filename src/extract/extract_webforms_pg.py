@@ -4,7 +4,7 @@ import logging
 from src.utils.config import (
     S3_TARGET_BUCKET
 )
-from src.utils.s3_utils import upload_df_as_parquet_to_s3
+from src.utils.s3_utils import get_target_s3, upload_df_as_parquet_to_s3
 from src.utils.postgres_utils import list_webform_tables, generate_s3_partitioned_key, get_postgres_engine, get_db_credentials
 from src.utils.pre_bronze import normalize_column_name_and_type, add_ingest_metadata
 
@@ -42,9 +42,10 @@ def extract_and_upload_forms(write_back_to_s3: bool = False):
             # upload to S3 as Parquet
             if write_back_to_s3: 
                 s3_target_key = generate_s3_partitioned_key("website-complaint-forms", table)
-                upload_df_as_parquet_to_s3(df, s3_target_key)
-                logger.info("Uploaded parquet to s3://%s/%s", S3_TARGET_BUCKET, s3_target_key)
- 
-
-if __name__ == "__main__":
-    extract_and_upload_forms(write_back_to_s3=True)
+                target_hook = get_target_s3()
+        
+                if target_hook.check_for_key(s3_target_key, bucket_name=S3_TARGET_BUCKET):
+                    logger.info("Skipping upload — parquet already exists: %s", s3_target_key)
+                    return
+            upload_df_as_parquet_to_s3(df, s3_target_key)
+            logger.info("Uploaded parquet to s3://%s/%s", S3_TARGET_BUCKET, s3_target_key)
