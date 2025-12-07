@@ -1,14 +1,7 @@
-import os
 from pathlib import Path
 
-project_root = Path.cwd()
-
 # AWS / S3 settings 
-AWS_REGION = os.getenv("AWS_REGION", "eu-north-1")  # Stockholm region
-
-RAW_PROFILE = "default"
-TARGET_PROFILE = "chikodi-main"
-
+AWS_REGION = "eu-north-1" 
 S3_RAW_BUCKET = "core-telecoms-data-lake"
 S3_TARGET_BUCKET = "core-telecoms-dev-bronze-layer"
 
