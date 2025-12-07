@@ -51,6 +51,6 @@
         WHEN 'WI' THEN 'Wisconsin'
         WHEN 'WY' THEN 'Wyoming'
         WHEN 'DC' THEN 'District of Columbia'
-        ELSE {{ state_column }}
+        ELSE {{ NULL }}
     END
 {% endmacro %}
