@@ -1,79 +1,111 @@
-import boto3
-from botocore.exceptions import ClientError
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import io
-import datetime
-from .config import AWS_REGION, S3_RAW_BUCKET, S3_TARGET_BUCKET, TARGET_PROFILE, RAW_PROFILE
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+from botocore.config import Config
+from .config import S3_RAW_BUCKET, S3_TARGET_BUCKET
 
-def raw_s3():
-    session = boto3.Session(profile_name=RAW_PROFILE, region_name=AWS_REGION)
-    return session.client("s3")
+def get_source_s3():
+    """Get S3 hook for source bucket with timeout configuration"""
+    config = Config(
+        read_timeout=600,      # 10 minutes for reading large files
+        connect_timeout=60,    # 1 minute to establish connection
+        retries={
+            'max_attempts': 3,
+            'mode': 'standard'
+        }
+    )
+    
+    return S3Hook(
+        aws_conn_id="aws_source_bucket_conn",
+        config=config
+    )
 
-def target_s3():
-    session = boto3.Session(profile_name=TARGET_PROFILE, region_name=AWS_REGION)
-    return session.client("s3")
-
-s3_source = raw_s3()
-s3_dest = target_s3()
+def get_target_s3():
+    """Get S3 hook for target bucket with optimized upload settings"""
+    s3_hook = S3Hook(
+        aws_conn_id='aws_destination_conn',
+        transfer_config_args={
+            'max_concurrency': 5,                    # Reduced for stability
+            'multipart_threshold': 5 * 1024 * 1024,  # 5MB
+            'multipart_chunksize': 5 * 1024 * 1024,  # 5MB chunks
+        }
+    )
+    return s3_hook
 
 def list_objects(prefix: str = ""):
+    """List objects in source S3 bucket"""
     prefix = prefix.lstrip("/")
-    s3 = s3_source
-    paginator = s3.get_paginator("list_objects_v2")
-    for page in paginator.paginate(Bucket=S3_RAW_BUCKET, Prefix=prefix):
-        for obj in page.get("Contents", []):
-            yield obj["Key"]
+    s3_hook = get_source_s3()
+    
+    keys = s3_hook.list_keys(bucket_name=S3_RAW_BUCKET, prefix=prefix)
+    return keys or []
 
 def read_csv_from_s3_to_df(s3_key: str, **pd_kwargs) -> pd.DataFrame:
     """
-    this function reads a CSV file from S3 and returns it as a pandas DataFrame
+    Read a CSV or JSON file from S3 and return it as a pandas DataFrame
+    with proper timeout handling for large files
     """
-    try:
-        s3 = s3_source
-        resp = s3.get_object(Bucket=S3_RAW_BUCKET, Key=s3_key)
-        body = resp["Body"].read()
-        if s3_key.lower().endswith(".csv"):
-            return pd.read_csv(io.BytesIO(body), **pd_kwargs)
+    s3_hook = get_source_s3()  # Now includes timeout config
+    s3_obj = s3_hook.get_key(key=s3_key, bucket_name=S3_RAW_BUCKET)
+    body = s3_obj.get()["Body"].read()
+    
+    if s3_key.lower().endswith(".csv"):
+        return pd.read_csv(io.BytesIO(body), **pd_kwargs)
+    elif s3_key.lower().endswith(".json"):
+        return pd.read_json(io.BytesIO(body), orient="columns", **pd_kwargs)
+    else:
+        raise ValueError(f"Unsupported file type in key: {s3_key}")
+    
 
-        elif s3_key.lower().endswith(".json"):
-            return pd.read_json(io.BytesIO(body), orient="columns", **pd_kwargs)
+def read_csv_from_s3_in_chunks(s3_key: str, chunksize: int = 50000, **pd_kwargs):
+    """
+    Stream a CSV file from S3 in chunks without loading entire file into memory.
+    Returns a generator yielding pandas DataFrame chunks.
+    """
+    s3_hook = get_source_s3()
+    s3_obj = s3_hook.get_key(key=s3_key, bucket_name=S3_RAW_BUCKET)
 
-        else:
-            raise ValueError(f"Unsupported file type in key: {s3_key}")
-        
-    except ClientError as e:
-        raise
+    # STREAM instead of reading full object
+    body_stream = s3_obj.get()["Body"]
 
+    # pandas can read directly from a file-like stream
+    return pd.read_csv(body_stream, chunksize=chunksize, **pd_kwargs)
 
 def upload_df_as_parquet_to_s3(df: pd.DataFrame, s3_target_key: str):
-    """Write a pandas DataFrame to S3 as Parquet without writing locally."""
+    """Write a pandas DataFrame to S3 as Parquet with timeout handling"""
     # Convert DataFrame to Parquet bytes in memory
     table = pa.Table.from_pandas(df)
     buffer = io.BytesIO()
     pq.write_table(table, buffer)
     buffer.seek(0)
 
-    # Upload to S3
-    s3 = s3_dest
-    s3.put_object(
-        Bucket=S3_TARGET_BUCKET,
-        Key=s3_target_key,
-        Body=buffer.getvalue(),
-        ContentType="application/octet-stream"
+    # Upload to S3 with optimized settings
+    s3_hook = get_target_s3()  # Includes multipart upload config
+    s3_hook.load_bytes(
+        bytes_data=buffer.getvalue(),
+        key=s3_target_key,
+        bucket_name=S3_TARGET_BUCKET,
+        replace=True
     )
     return f"s3://{S3_TARGET_BUCKET}/{s3_target_key}"
-
 
 def generate_s3_partitioned_key(prefix: str, original_key: str) -> str:
     """
     Generate a partitioned S3 key based on the date inside the filename.
     Expects a filename formatted like: call_logs_day_2025-11-20.csv
     """
-    filename = original_key.split("/")[-1]               # call_logs_day_2025-11-20.csv
-    date_str = filename.replace(".csv", "").split("_")[-1]  # 2025-11-20
-    year, month, day = date_str.split("-")
-    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    parquet_name = f"{prefix}{ts}.parquet"
+    filename = original_key.split("/")[-1]
+    date_str = filename.replace(".csv", "").replace(".json", "").split("_")[-1]
+    parts = date_str.split("-")
+    
+    if len(parts) != 3:
+        raise ValueError(
+            f"Invalid date format in filename: {filename}. "
+            f"Expected format: prefix_YYYY-MM-DD.ext, got date_str: '{date_str}'"
+        )
+    
+    year, month, day = parts
+    parquet_name = f"{prefix}-{year}-{month}-{day}.parquet"
     return f"{prefix}/{year}/{month}/{parquet_name}"
