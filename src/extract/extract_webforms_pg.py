@@ -20,14 +20,6 @@ def extract_and_upload_forms(write_back_to_s3: bool = False):
 
     for table in tables:
 
-        # year, month, day = table.split("_")[-3], table.split("_")[-2], table.split("_")[-1]
-
-        # # Check if already ingested to S3
-        # s3_prefix = f"website-complaint-forms/{year}/{month}/"
-        # if s3_partition_exists(S3_TARGET_BUCKET, s3_prefix):
-        #     logger.info("Skipping %s — already exists in S3.", table)
-        #     continue
-
         logger.info("Extracting new table: %s", table)
         
         query = text(f'SELECT * FROM {schema}.{table}')
