@@ -33,12 +33,17 @@ jobs:
         run: |
           python -m compileall airflow/dags
 
+      # Install dbt
+      - name: Install dbt
+        run: |
+            pip install dbt-core dbt-snowflake
+
       # dbt compile (no warehouse connection needed)
       - name: dbt compile
         run: |
-          dbt compile --profiles-dir dbt/core_telecom_dbt/profiles.yml
+          dbt compile --profiles-dir dbt/profiles
 
       # dbt tests (schema & data tests)
       - name: dbt tests
         run: |
-          dbt test --profiles-dir dbt/core_telecom_dbt/profiles.yml
+          dbt test --profiles-dir dbt/profiles
