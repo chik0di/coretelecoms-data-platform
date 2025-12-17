@@ -1,0 +1,44 @@
+name: Core-Telecom CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r airflow/requirements.txt  
+          pip install -r airflow/requirements-ci.txt
+
+      # Validate Airflow DAGs (syntax + imports)
+      - name: Validate Airflow DAGs
+        run: |
+          python -m compileall airflow/dags
+
+      # dbt compile (no warehouse connection needed)
+      - name: dbt compile
+        run: |
+          dbt compile --profiles-dir dbt/core_telecom_dbt/profiles.yml
+
+      # dbt tests (schema & data tests)
+      - name: dbt tests
+        run: |
+          dbt test --profiles-dir dbt/core_telecom_dbt/profiles.yml
