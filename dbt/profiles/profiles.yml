@@ -1,4 +1,4 @@
-core_telecom:
+core_telecom_dbt:
   target: ci
   outputs:
     ci:
