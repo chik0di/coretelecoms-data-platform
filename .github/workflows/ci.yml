@@ -41,9 +41,13 @@ jobs:
       # dbt compile (no warehouse connection needed)
       - name: dbt compile
         run: |
-          dbt compile --profiles-dir dbt/profiles
+          dbt compile \
+          --project-dir dbt/core_telecom_dbt \
+          --profiles-dir dbt/profiles
 
       # dbt tests (schema & data tests)
       - name: dbt tests
         run: |
-          dbt test --profiles-dir dbt/profiles
+          dbt test \
+          --project-dir dbt/core_telecom_dbt \ 
+          --profiles-dir dbt/profiles
