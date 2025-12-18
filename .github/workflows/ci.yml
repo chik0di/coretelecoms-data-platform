@@ -46,7 +46,7 @@ jobs:
             --profiles-dir dbt/core_telecom_dbt/profiles
 
       # dbt compile (no warehouse connection needed)
-      - name: dbt compile
+      - name: dbt parse
         run: |
           dbt compile \
           --project-dir dbt/core_telecom_dbt \
