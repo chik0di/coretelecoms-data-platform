@@ -38,6 +38,13 @@ jobs:
         run: |
             pip install dbt-core dbt-snowflake
 
+      # Install dbt dependencies 
+      - name: Install dbt dependencies
+        run: |
+            dbt deps \
+            --project-dir dbt/core_telecom_dbt \
+            --profiles-dir dbt/core_telecom_dbt/profiles
+
       # dbt compile (no warehouse connection needed)
       - name: dbt compile
         run: |
