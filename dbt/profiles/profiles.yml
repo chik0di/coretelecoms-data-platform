@@ -3,11 +3,11 @@ core_telecom_dbt:
   outputs:
     ci:
       type: snowflake
-      account: "{{ env_var('SNOWFLAKE_ACCOUNT', 'dummy') }}"
-      user: "{{ env_var('SNOWFLAKE_USER', 'dummy') }}"
-      password: "{{ env_var('SNOWFLAKE_PASSWORD', 'dummy') }}"
-      role: "{{ env_var('SNOWFLAKE_ROLE', 'DUMMY_ROLE') }}"
-      database: "{{ env_var('SNOWFLAKE_DATABASE', 'DUMMY_DB') }}"
-      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'DUMMY_WH') }}"
-      schema: "{{ env_var('SNOWFLAKE_SCHEMA', 'CI_SCHEMA') }}"
+      account: "dummy"
+      user: "dummy"
+      password: "dummy"
+      role: "DUMMY_ROLE"
+      database: "DUMMY_DB"
+      warehouse: "DUMMY_WH"
+      schema: "CI_SCHEMA"
       threads: 1
