@@ -1,7 +1,7 @@
-# CoreTelecoms Unified Customer Experience Data Platform
+# CoreTelecoms Unified Customer Complaint Data Platform
 
 ## Overview
-CoreTelecoms — a major US telecom operator — is facing a customer retention crisis. Thousands of complaints arrive daily across multiple fragmented systems:
+CoreTelecomms — the telecommunication subsidiary of CDE — is facing a customer retention crisis. Thousands of complaints arrive daily across multiple fragmented systems:
 
 - Social Media
 
@@ -21,67 +21,36 @@ The business suffers from:
 - No unified view of customer behavior and complaints
 - High customer churn
 
-### The Mission
+## Project Objective
 
-I was brought in as a Data Engineer to build a complete, production-quality Unified Customer Experience Data Platform that ingests all sources, centralizes storage, enforces data quality, models data with dbt, orchestrate workflows with Airflow, and provides a single source of truth for analytics & machine learning.
+To build a complete, Unified Customer Complaint Data Platform that ingests all sources, centralizes storage, enforces data quality, models data, orchestrate workflows, and provides a single source of truth for mainly analytics & subsequently, machine learning.
 
-If this platform works, the company stands to save millions in churn reduction and customer retention.
+## What the Application Does
 
-## Project Objectives
+The CoreTelecomms Customer Complaint Analytics Platform is an end-to-end data pipeline and analytics system designed to ingest, standardize, analyze, and visualize customer complaints from multiple operational sources within a telecom environment.
 
-This platform covers:
+The application workflow includes:
 
-1. Data Ingestion (Raw Layer)
+- Extracting raw complaint data from structured and semi-structured sources
+- Cleaning and transforming inconsistent complaint records into analytics-ready datasets
+- Modeling the data into fact and dimension tables optimized for analysis
+- Delivering insights on complaint volume, service categories, customer segments, and escalation trends
+- Scheduled ingestion, transformation, and loading of complaint data with task-level dependency management
 
-    - Extract data from S3 (CSV/JSON), Google Sheets, and PostgreSQL tables
+The final output enables operations teams, customer experience managers, and executives to:
 
-    - Store them as raw Parquet files with metadata
+- Identify recurring customer pain points
+- Make data-driven decisions to improve customer satisfaction and service reliability
+  
+In short, the application turns raw customer complaints into actionable intelligence.
 
-2. Data Cleaning & Enrichment
+## Project Setup Guide 
+This project is currently being containerized with Docker to provide a consistent, portable runtime for Airflow, dbt, and all pipeline dependencies. Stay Tuned.
 
-    - Standardize messy inputs
+## Architectural Diagram
 
-    - Validate emails, normalize column naming
 
-    - Perform joins, enrichments, categorization, and data quality checks
-
-3. Data Warehouse Modeling
-
-    - Build a scalable DW (Snowflake)
-
-    - Use dbt for better transformations, lineage, and testing
-
-    - Publish trusted datasets for the Analytics team.
-
-4. Orchestration (Apache Airflow)
-
-    - Automate extraction
-
-    - Automate transformations
-
-    - Implement retries, idempotency, incremental loads, slack alerts
-
-5. Containerization
-
-    - Package entire project into Docker images
-
-    - Push to cloud container registry
-
-6. CI/CD
-
-    - Automated lint checks
-
-    - Automated Docker image builds and pushes
-
-    - Deployment workflow
-
-7. Infrastructure as Code
-
-    - Terraform-managed AWS resources
-
-    - IAM roles, S3 buckets
-
-## Project Structure
+## Repo Structure
 ```
 coretelecoms-data-platform/
 │
@@ -119,7 +88,8 @@ coretelecoms-data-platform/
 
 ```
 
-## [Architecture Diagram](architecture.drawio.png)
+## [Architectural Diagram](architecture.drawio.png)
+![Architecture Diagram](architecture.drawio.png)
 
 ## Tools & Technologies
 <p align="center">
@@ -143,3 +113,14 @@ coretelecoms-data-platform/
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="70" alt="Python" />
     </a>
 </p>
+
+## Additional Resources
+[Creating and Using Custom Schemas in dbt](https://docs.getdbt.com/docs/build/custom-schemas)
+
+[Creating an S3 Stage in Snowflake](https://docs.snowflake.com/en/user-guide/data-load-s3-create-stage)
+
+[Copying data from an S3 Stage](https://docs.snowflake.com/en/user-guide/data-load-s3-copy)
+
+[Troubleshooting Obscure task failures in Airflow](https://airflow.apache.org/docs/apache-airflow/stable/troubleshooting.html)
+
+Using the SnowflakeSQLAPI Operator in Airflow- [Airflow Docs](https://airflow.apache.org/docs/apache-airflow-providers-snowflake/stable/operators/snowflake.html#snowflakesqlapioperator), [My article](https://medium.com/@chik0di/using-the-snowflakesqlapi-operator-in-airflow-0206632db2a3?postPublishedType=initial)
