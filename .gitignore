@@ -16,7 +16,7 @@ venv/**/*
 src/**/__pycache__/
 
 # Credentials
-credentials/*.json
+credentials/
 
 # Airflow Business
 airflow/.env
@@ -24,6 +24,9 @@ airflow/logs
 airflow/config
 airflow/dags/__pycache__/
 airflow/plugins
+
+# Snowflake Business
+snowflake/.env
 
 # dbt Business
 dbt/logs
