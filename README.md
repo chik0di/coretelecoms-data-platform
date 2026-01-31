@@ -100,17 +100,16 @@ coretelecoms-data-platform/
 │   └── Dockerfile                 # Custom dbt image for containerized transforms
 │
 ├── docs/
-│   └── ...                        # Documentation files for the platform (Presentation, notes, diagrams)
+│   └── ...                        # Documentation files for the platform (Presentation, notes, etc)
 │
 ├── infra/
 │   └── ...                        # Infrastructure-as-code scripts (Terraform)
 │
 ├── src/
 │   ├── extract/                   # Extract scripts (Agent extraction, S3 ingestion, database pulls)
-│   ├── tests/                     # Unit / integration tests for ETL modules
 │   └── utils/                     # Shared utilities (postgres utilities, S3 utilities, slack alerts, config file, etc)
 │
-├── venv/                          # Local Python virtual environment (ignored in container builds)
+├
 │
 ├── architecture.drawio.png        # System architecture diagram 
 ├
@@ -141,5 +140,13 @@ coretelecoms-data-platform/
     &nbsp;&nbsp;&nbsp;
     <a href="./src/extract/">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="70" alt="Python" />
+    </a>
+    &nbsp;&nbsp;&nbsp;
+    </a href="./snowflake">
+        <img width="70" src="https://img.icons8.com/water-color/50/snowflake.png" alt="snowflake"/>
+    </a>
+    &nbsp;&nbsp;&nbsp;
+    </a href="./dbt/">
+        <img width="70" src="image.png" alt="dbt"/>
     </a>
 </p>
