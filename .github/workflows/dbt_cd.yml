@@ -30,4 +30,4 @@ jobs:
           context: dbt/core_telecom_dbt
           file: dbt/core_telecom_dbt/Dockerfile
           push: true
-          tags: chik0di/core-telecom-dbt:latest
+          tags: chik0di/core-telecom-data-modeling:latest
