@@ -25,7 +25,7 @@ SELECT
     "agent_id",
     "call_start_time",
     "call_end_time",
-    TIMESTAMPDIFF(SECOND, "call_start_time", "call_end_time") AS call_duration_seconds,
+    TIMESTAMPDIFF(SECOND, "call_start_time", "call_end_time") AS "call_duration_seconds",
     "resolution_status",
     CASE 
         WHEN "resolution_status" = 'Resolved' THEN 1 
